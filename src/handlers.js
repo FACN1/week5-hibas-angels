@@ -1,5 +1,6 @@
 var fs = require('fs');
 var url = require('url');
+var querystring = require('querystring');
 
 var requestModule = require('request');
 
@@ -58,13 +59,27 @@ handlers.questions = function(request, response) {
 
   var tags = {
     'all': '',
-    'js': '&tagged=js',
-    'node': '&tagged=nodejs'
+    'js': 'js',
+    'node': 'nodejs'
   };
 
   // make request
-  var stackURL = 'https://api.stackexchange.com/2.2/questions?order=desc&sort=creation&site=stackoverflow' + tags[tag];
+  //var stackURL = 'https://api.stackexchange.com"/2.2/questions"?order=desc&sort=creation&site=stackoverflow' + tags[tag];
+  queryParams = {
+    order : 'desc',
+    sort: 'creation',
+    site:'stackoverflow',
+    tagged: tags[tag]
+  }
 
+  var stackURL = url.format({
+    protocol : 'https',
+    host : 'api.stackexchange.com',
+    pathname : '2.2/questions',
+    query : queryParams
+  })
+
+console.log(stackURL);
   var reqOptions = {
     uri: stackURL,
     gzip: true /* EFFING HELL */
@@ -72,7 +87,7 @@ handlers.questions = function(request, response) {
 
   requestModule(reqOptions, function(error, res, body) {
     if (error) {
-      response.writehead(500, headers.plain);
+      response.writeHead(500, headers.plain);
       response.end('Server error! Holy moly!');
     }
 
